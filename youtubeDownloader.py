@@ -48,33 +48,8 @@ def load_video_info(url):
         print(f"加载视频信息出错: {e}")
         sys.exit(1)
 
-# 筛选并选择filesize最大的视频格式
-def select_best_format(formats):
-    # 筛选出同时包含filesize和height的格式
-    valid_formats = [fmt for fmt in formats if 'filesize' in fmt and 'height' in fmt]
-
-    # 如果没有合适的格式，退出
-    if not valid_formats:
-        print("没有找到合适的视频格式。")
-        sys.exit(1)
-
-    # 根据filesize排序，选择最大的视频格式
-    best_format = max(valid_formats, key=lambda x: x['filesize'])
-    return best_format
 # 下载视频
-def download_video(formats, selected_quality_index, url):
-    selected_format = select_best_format(formats)
-
-    if 'height' in selected_format and 'filesize' in selected_format:
-        quality_text = f"{selected_format['height']}p - {selected_format['filesize'] / 1024 / 1024:.2f} MB"
-    elif 'filesize' in selected_format:  # 可能是音频
-        quality_text = f"音频 - {selected_format['filesize'] / 1024 / 1024:.2f} MB"
-    else:
-        print("选择的格式不包含有效的质量信息")
-        return
-
-    print(f"正在下载 {quality_text} 格式...")
-
+def download_video(url):
     # 使用 youtube-dl 进行下载操作，确保选中合适的格式。
     # ydl_opts = {'format': selected_format['format_id'], 'progress_hooks': [show_progress]}
     ydl_opts = {
@@ -83,7 +58,6 @@ def download_video(formats, selected_quality_index, url):
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  # 强制转换为 mp4 格式
             }],
-            'progress_hooks': [self.show_progress],  # 显示进度
             'quiet': False,  # 显示更多信息
         }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -108,7 +82,7 @@ def main():
     selected_quality_index = len(formats) - 1  # 默认选择最清晰的画质
 
     # 下载视频
-    download_video(formats, selected_quality_index, url)
+    download_video(url)
 
 
 if __name__ == "__main__":
